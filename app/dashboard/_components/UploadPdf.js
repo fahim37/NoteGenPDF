@@ -12,8 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { useMutation } from "convex/react";
+import axios from "axios";
+import { useAction, useMutation } from "convex/react";
 import { Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import uuid4 from "uuid4";
@@ -22,13 +22,17 @@ const UploadPdfDialog = ({ children }) => {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
   const addFileEntry = useMutation(api.fileStorage.AddFileEntryToDb);
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
+  const embeddedDocument = useAction(api.myActions.ingest);
   const { user } = useUser();
   const [file, setFile] = useState();
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
   const onFileSelect = (event) => {
     setFile(event.target.files[0]);
   };
+
   const onUpload = async () => {
     setLoading(true);
     const postUrl = await generateUploadUrl();
@@ -43,20 +47,32 @@ const UploadPdfDialog = ({ children }) => {
     const fileId = uuid4();
 
     const fileUrl = await getFileUrl({ storageId: storageId });
-    //adding to db
+    // Adding to db
     const response = await addFileEntry({
       fileId: fileId,
       storageId: storageId,
-      fileName: fileName ?? "Untitled file",
+      fileName: fileName || "Untitled file",
       fileUrl: fileUrl,
       createdBy: user?.primaryEmailAddress?.emailAddress,
     });
-    console.log(response);
+    // Fetching processed data
+    const apiResp = await axios.get("api/pdf-loader?pdfUrl=" + fileUrl);
+    console.log(apiResp.data.result);
+    await embeddedDocument({
+      splitText: apiResp.data.result,
+      fileId: fileId,
+    });
     setLoading(false);
+    setOpen(false);
   };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="w-full" onClick={() => setOpen(true)}>
+          + Upload PDF File
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload a PDF File</DialogTitle>
@@ -81,12 +97,14 @@ const UploadPdfDialog = ({ children }) => {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-end">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <Button onClick={onUpload}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setOpen(false)}
+          >
+            Close
+          </Button>
+          <Button onClick={onUpload} disabled={loading}>
             {loading ? <Loader2Icon className="animate-spin" /> : "Upload"}
           </Button>
         </DialogFooter>

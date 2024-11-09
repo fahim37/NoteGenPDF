@@ -7,11 +7,9 @@ import UploadPdfDialog from "./UploadPdf";
 const SideBar = () => {
   return (
     <div className="shadow-md h-screen p-6">
-      <img className="h-[50px] w-[170px]" src="/logo.png" alt="logo" />
+      <img className="h-[38px] w-[190px]" src="/logo.png" alt="logo" />
       <div className="mt-7">
-        <UploadPdfDialog>
-          <Button className="w-full">+ Upload PDF</Button>
-        </UploadPdfDialog>
+        <UploadPdfDialog />
         <div className="flex gap-2 mt-5 p-2 hover:bg-slate-200 cursor-pointer rounded-lg">
           <Layout />
           <h2>Workspace</h2>
