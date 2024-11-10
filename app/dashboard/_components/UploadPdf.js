@@ -16,6 +16,7 @@ import axios from "axios";
 import { useAction, useMutation } from "convex/react";
 import { Loader2Icon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import uuid4 from "uuid4";
 
 const UploadPdfDialog = ({ children }) => {
@@ -64,6 +65,7 @@ const UploadPdfDialog = ({ children }) => {
     });
     setLoading(false);
     setOpen(false);
+    toast("File is Ready for taking notes.")
   };
 
   return (

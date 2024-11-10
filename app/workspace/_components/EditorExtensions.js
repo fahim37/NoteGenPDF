@@ -47,7 +47,7 @@ const EditorExtensions = ({ editor }) => {
     return editor && (
         <div>
             <div className="control-group">
-                <div className="button-group flex gap-3">
+                <div className="button-group flex gap-2 flex-wrap">
                     <button
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                         className={editor.isActive('heading', { level: 1 }) ? 'text-blue-600' : ''}
@@ -110,9 +110,9 @@ const EditorExtensions = ({ editor }) => {
                     </button>
                     <button
                         onClick={() => onAiClick()}
-                        className={"hover:text-blue-600"}
+                        className={"hover:text-blue-600 flex items-center gap-2 border p-1 rounded-lg"}
                     >
-                        <Sparkles />
+                        <Sparkles /> <p>GENERATE</p>
                     </button>
 
                 </div>
