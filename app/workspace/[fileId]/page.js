@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import WorkspaceHeader from "../_components/WorkspaceHeader";
 import PdfViewer from "../_components/PdfViewer";
 import { useQuery } from "convex/react";
@@ -12,12 +12,17 @@ const Workspace = () => {
   const fileInfo = useQuery(api.fileStorage.getFileRecord, {
     fileId: fileId
   })
+  const [triggerSave, setTriggerSave] = useState(false);
+  const saveHandler = () => {
+    setTriggerSave(true);
+  };
+
   return (
     <div>
-      <WorkspaceHeader fileName={fileInfo.fileName} />
+      <WorkspaceHeader fileName={fileInfo?.fileName} saveHandler={saveHandler} />
       <div className="grid grid-cols-2 gap-5">
         <div>
-          <TextEditor />
+          <TextEditor fileId={fileId} triggerSave={triggerSave} setTriggerSave={setTriggerSave} />
         </div>
         <div>
           {fileInfo?.fileUrl && <PdfViewer fileUrl={fileInfo.fileUrl} />}

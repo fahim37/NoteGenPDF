@@ -1,6 +1,7 @@
 import { chatSession } from '@/app/configs/AIModel'
 import { api } from '@/convex/_generated/api'
-import { useAction } from 'convex/react'
+import { useUser } from '@clerk/nextjs'
+import { useAction, useMutation } from 'convex/react'
 import { AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3, Heading3Icon, Highlighter, Italic, Sparkles, Strikethrough } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React from 'react'
@@ -9,6 +10,8 @@ import { toast } from 'sonner'
 const EditorExtensions = ({ editor }) => {
     const { fileId } = useParams();
     const SearchAI = useAction(api.myActions.search)
+    const saveNotes = useMutation(api.notes.AddNotes)
+    const { user } = useUser();
     const onAiClick = async () => {
         toast("Ai is generating answer...")
         const selectedText = editor.state.doc.textBetween(
@@ -33,6 +36,13 @@ const EditorExtensions = ({ editor }) => {
 
         const allText = editor.getHTML();
         editor.commands.setContent(allText + "<p><strong>Answer: </strong></p>" + responseText)
+        saveNotes({
+            notes: editor.getHTML(),
+            fileId: fileId,
+            createdBy: user?.primaryEmailAddress?.emailAddress
+        })
+        toast("Document Saved.")
+
     }
     return editor && (
         <div>
