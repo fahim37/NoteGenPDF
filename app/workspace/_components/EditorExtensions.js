@@ -1,7 +1,39 @@
-import { AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3, Heading3Icon, Highlighter, Italic, Strikethrough } from 'lucide-react'
+import { chatSession } from '@/app/configs/AIModel'
+import { api } from '@/convex/_generated/api'
+import { useAction } from 'convex/react'
+import { AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3, Heading3Icon, Highlighter, Italic, Sparkles, Strikethrough } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import React from 'react'
+import { toast } from 'sonner'
 
 const EditorExtensions = ({ editor }) => {
+    const { fileId } = useParams();
+    const SearchAI = useAction(api.myActions.search)
+    const onAiClick = async () => {
+        toast("Ai is generating answer...")
+        const selectedText = editor.state.doc.textBetween(
+            editor.state.selection.from,
+            editor.state.selection.to,
+            " "
+        )
+        const result = await SearchAI({
+            query: selectedText,
+            fileId: fileId
+        })
+        const allUnformattedAns = JSON.parse(result);
+        let allUnformattedAnswer = ""
+        allUnformattedAns && allUnformattedAns.forEach(item => {
+            allUnformattedAnswer = allUnformattedAnswer + item.pageContent
+        });
+        const PROMPT = "For question:" + selectedText + " give appropriate answer only in HTML format. The answer content is:" + allUnformattedAnswer;
+        console.log(PROMPT)
+
+        const AiModelResult = await chatSession.sendMessage(PROMPT);
+        const responseText = await AiModelResult.response.text().replace("```", "").replace("html", "").replace("```", "");
+
+        const allText = editor.getHTML();
+        editor.commands.setContent(allText + "<p><strong>Answer: </strong></p>" + responseText)
+    }
     return editor && (
         <div>
             <div className="control-group">
@@ -66,7 +98,12 @@ const EditorExtensions = ({ editor }) => {
                     >
                         <Highlighter />
                     </button>
-
+                    <button
+                        onClick={() => onAiClick()}
+                        className={"hover:text-blue-600"}
+                    >
+                        <Sparkles />
+                    </button>
 
                 </div>
             </div>

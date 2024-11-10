@@ -26,7 +26,10 @@ const TextEditor = () => {
     return (
         <div className='p-4'>
             <EditorExtensions editor={editor} />
-            <EditorContent editor={editor} />
+            <div className='overflow-scroll h-[87vh]'>
+                <EditorContent editor={editor} />
+
+            </div>
         </div>
     )
 }

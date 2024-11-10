@@ -42,7 +42,7 @@ export const getFileRecord = query({
 
   handler: async (ctx, argr) => {
     const result = await ctx.db.query('pdfFiles').filter((q) => q.eq(q.field('fileId'), argr.fileId)).collect()
-    console.log(result)
+
     return result[0]
 
   }
