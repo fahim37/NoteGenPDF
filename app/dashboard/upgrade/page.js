@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import { useEffect } from 'react'
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,20 +8,31 @@ import { api } from '@/convex/_generated/api'
 import { useUser } from '@clerk/nextjs'
 import { toast } from 'sonner'
 import { loadStripe } from '@stripe/stripe-js'
+import { useRouter, useSearchParams } from 'next/navigation'
 const UpgradePlan = () => {
+  const router = useRouter()
   const { user } = useUser();
   const upgradeUserPlan = useMutation(api.user.userUpgrade);
   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  const searchParams = useSearchParams();
 
   const onPaymentSuccess = async () => {
-    const res = await upgradeUserPlan({
-      userEmail: user?.primaryEmailAddress?.emailAddress
+    const userEmail = user?.primaryEmailAddress?.emailAddress;
 
-    })
-    console.log(res)
-    toast("Plan Upgradation Successful")
+    if (!userEmail) {
+      console.log(userEmail)
+      return;
+    }
 
-  }
+    try {
+      const res = await upgradeUserPlan({ userEmail });
+      console.log(res);
+      toast("Plan Upgradation Successful");
+    } catch (error) {
+      console.error("Error upgrading plan:", error);
+      toast("An error occurred while upgrading the plan.");
+    }
+  };
   const handleCheckout = async () => {
     const stripe = await stripePromise
 
@@ -37,7 +48,7 @@ const UpgradePlan = () => {
 
       if (session.sessionId) {
         stripe.redirectToCheckout({ sessionId: session.sessionId });
-        onPaymentSuccess();
+
       } else {
         toast("Failed to retrieve session ID for checkout.");
       }
@@ -45,6 +56,30 @@ const UpgradePlan = () => {
       toast("Failed to create checkout session.");
     }
   };
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      const verifyPayment = async () => {
+        try {
+          const response = await fetch(`/api/verify-payment?session_id=${sessionId}`);
+          const data = await response.json();
+          if (data.success) {
+            onPaymentSuccess();
+            toast("Payment successfull. You will be Redirected to dashboard.")
+            setTimeout(() => {
+              router.push('/dashboard');
+            }, 1000);
+          } else {
+            toast("Payment verification failed.");
+          }
+        } catch (error) {
+          console.error("Payment verification error:", error);
+          toast("An error occurred during payment verification.");
+        }
+      };
+      verifyPayment();
+    }
+  }, []);
 
   return (
     <div>

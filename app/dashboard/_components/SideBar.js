@@ -13,6 +13,9 @@ import Link from "next/link";
 const SideBar = () => {
   const { user } = useUser()
   const path = usePathname();
+  const GetUserInfo = useQuery(api.user.GetUserInfo, {
+    userEmail: user?.primaryEmailAddress?.emailAddress
+  })
   const fileList = useQuery(api.fileStorage.GetUserPDF, {
     userEmail: user?.primaryEmailAddress?.emailAddress
   })
@@ -24,7 +27,7 @@ const SideBar = () => {
 
       </div>
       <div className="mt-7">
-        <UploadPdfDialog isMaxFile={fileList?.length >= 20 ? true : false} />
+        <UploadPdfDialog isMaxFile={fileList?.length >= 20 && !GetUserInfo.upgrade} />
         <Link href={'/dashboard'}>
           <div className={`flex gap-2 mt-5 p-2 hover:bg-slate-200 cursor-pointer rounded-lg ${path == '/dashboard' && 'bg-slate-200'}`}>
             <Layout />
@@ -39,11 +42,11 @@ const SideBar = () => {
         </Link>
 
       </div>
-      <div className="absolute bottom-24 w-[80%]">
+      {!GetUserInfo?.upgrade && <div className="absolute bottom-24 w-[80%]">
         <Progress value={(fileList?.length / 20) * 100} />
         <p className="text-sm mt-3">{fileList?.length} out of 20 Pdf Uploaded</p>
         <p className="text-sm mt-1 text-gray-500">Upgrade to upload more</p>
-      </div>
+      </div>}
     </div>
   );
 };
