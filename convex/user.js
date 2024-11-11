@@ -19,9 +19,29 @@ export const createUser = mutation({
         email: args.email,
         userName: args.userName,
         imageUrl: args.imageUrl,
+        upgrade: false
       });
       return "User incerted";
     }
     return "user Exist";
   },
 });
+
+export const userUpgrade = mutation({
+  args: {
+    userEmail: v.string()
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query("user")
+      .filter((q) => q.eq(q.field("email"), args.userEmail))
+      .collect();
+    if (result) {
+      await ctx.db.patch(result[0]._id, { upgrade: true })
+      return "upgraded"
+    }
+    return "error"
+
+  }
+
+})

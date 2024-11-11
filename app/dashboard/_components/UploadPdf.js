@@ -19,7 +19,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import uuid4 from "uuid4";
 
-const UploadPdfDialog = ({ children }) => {
+const UploadPdfDialog = ({ children, isMaxFile }) => {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
   const addFileEntry = useMutation(api.fileStorage.AddFileEntryToDb);
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
@@ -44,7 +44,6 @@ const UploadPdfDialog = ({ children }) => {
       body: file,
     });
     const { storageId } = await result.json();
-    console.log(storageId);
     const fileId = uuid4();
 
     const fileUrl = await getFileUrl({ storageId: storageId });
@@ -58,7 +57,7 @@ const UploadPdfDialog = ({ children }) => {
     });
     // Fetching processed data
     const apiResp = await axios.get("api/pdf-loader?pdfUrl=" + fileUrl);
-    console.log(apiResp.data.result);
+
     await embeddedDocument({
       splitText: apiResp.data.result,
       fileId: fileId,
@@ -71,7 +70,7 @@ const UploadPdfDialog = ({ children }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full" onClick={() => setOpen(true)}>
+        <Button className="w-full" disabled={isMaxFile} onClick={() => setOpen(true)}>
           + Upload PDF File
         </Button>
       </DialogTrigger>

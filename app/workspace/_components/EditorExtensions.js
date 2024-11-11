@@ -29,7 +29,6 @@ const EditorExtensions = ({ editor }) => {
             allUnformattedAnswer = allUnformattedAnswer + item.pageContent
         });
         const PROMPT = "For question:" + selectedText + " give appropriate answer only in HTML format. The answer content is:" + allUnformattedAnswer;
-        console.log(PROMPT)
 
         const AiModelResult = await chatSession.sendMessage(PROMPT);
         const responseText = await AiModelResult.response.text().replace("```", "").replace("html", "").replace("```", "");

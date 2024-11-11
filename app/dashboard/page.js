@@ -10,7 +10,6 @@ const Dashboard = () => {
   const fileList = useQuery(api.fileStorage.GetUserPDF, {
     userEmail: user?.primaryEmailAddress?.emailAddress
   })
-  console.log(fileList)
   return (
     <div>
       <h2 className="font-medium text-2xl">Workspace</h2>

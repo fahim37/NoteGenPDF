@@ -4,7 +4,6 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 export async function GET(req) {
   try {
-    //obtain the request URL
     const { searchParams } = new URL(req.url);
     const pdfUrl = searchParams.get("pdfUrl");
 
@@ -15,7 +14,6 @@ export async function GET(req) {
       );
     }
 
-    // Loading PDF from URL
     const response = await fetch(pdfUrl);
     const blob = await response.blob();
     const loader = new WebPDFLoader(blob);

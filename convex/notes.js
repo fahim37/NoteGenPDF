@@ -9,7 +9,7 @@ export const AddNotes = mutation({
     },
     handler: async (ctx, args) => {
         const record = await ctx.db.query('notes').filter(q => q.eq(q.field('fileId'), args.fileId)).collect();
-        console.log(record)
+
         if (record?.length === 0) {
             await ctx.db.insert("notes", {
                 fileId: args.fileId,
