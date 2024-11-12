@@ -21,7 +21,7 @@ export async function POST(req) {
                 },
             ],
             mode: 'payment',
-            success_url: `${req.headers.get('origin')}/dashboard/upgrade/?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${req.headers.get('origin')}/dashboard/upgrade/upgrade-success/?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${req.headers.get('origin')}/dashboard/upgrade`,
             customer_email: userEmail,
         });
