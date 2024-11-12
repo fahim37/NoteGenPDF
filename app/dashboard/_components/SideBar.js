@@ -20,7 +20,7 @@ const SideBar = () => {
     userEmail: user?.primaryEmailAddress?.emailAddress
   })
   return (
-    <div className="shadow-md h-screen p-6">
+    <div className="shadow-md h-screen p-2 pt-7 md:p-6">
       <Link href={"/dashboard"} className="w-full flex justify-center">
         <img className="h-[24px] w-[100px] md:h-[28px] md:w-[120px]" src="/logo.png" alt="logo"></img>
       </Link>
