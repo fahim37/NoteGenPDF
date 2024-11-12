@@ -22,7 +22,7 @@ const Dashboard = () => {
             </div>
           </Link>
         ))
-          : [1, 2, 3, 4, 5, 6].map((_, index) => (
+          : [1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
             <div key={index} className="bg-slate-200 rounded-md h-[150px] animate-pulse">
 
             </div>

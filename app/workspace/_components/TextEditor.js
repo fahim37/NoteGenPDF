@@ -21,7 +21,7 @@ const TextEditor = ({ fileId, triggerSave, setTriggerSave }) => {
         extensions: [StarterKit,
             Highlight,
             Placeholder.configure({
-                placeholder: "Start taking Notes..."
+                placeholder: "Write the Question and press Generate to get Answer or take your own notes..."
             }),
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
@@ -58,7 +58,7 @@ const TextEditor = ({ fileId, triggerSave, setTriggerSave }) => {
     return (
         <div className='p-4'>
             <EditorExtensions editor={editor} />
-            <div className='overflow-scroll h-[87vh]'>
+            <div className='overflow-scroll h-[85vh]'>
                 <EditorContent editor={editor} />
             </div>
         </div>

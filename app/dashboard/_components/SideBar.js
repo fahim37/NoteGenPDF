@@ -21,11 +21,9 @@ const SideBar = () => {
   })
   return (
     <div className="shadow-md h-screen p-6">
-      <div className="w-full border flex justify-center">
-        <img className="h-[28px] w-[120px] text-center" src="/logo.png" alt="logo" />
-
-
-      </div>
+      <Link href={"/dashboard"} className="w-full flex justify-center">
+        <img className="h-[24px] w-[100px] md:h-[28px] md:w-[120px]" src="/logo.png" alt="logo"></img>
+      </Link>
       <div className="mt-7">
         <UploadPdfDialog isMaxFile={fileList?.length >= 20 && !GetUserInfo.upgrade} />
         <Link href={'/dashboard'}>
