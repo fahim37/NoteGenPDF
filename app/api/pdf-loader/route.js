@@ -7,8 +7,7 @@ function preprocessText(text) {
   processedText = processedText.replace(/[\u200B-\u200D\uFEFF]/g, ''); // Remove zero-width characters
   processedText = processedText.replace(/[^a-z0-9\s,.?!-]/gi, ''); // Keep alphanumeric and common punctuation
   processedText = processedText.replace(/\s{2,}/g, ' ').trim(); // Collapse multiple spaces into one
-  processedText = processedText.replace(/([,.?!])\1+/g, '$1'); // Reduce repeated punctuation
-  processedText = processedText.replace(/\d+/g, '<num>'); // Replace numbers with placeholder
+
 
   const stopwords = ["and", "the", "is", "in", "at", "of", "a", "to", "for", "with", "on"];
   processedText = processedText.split(" ")
