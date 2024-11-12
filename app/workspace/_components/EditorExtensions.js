@@ -27,28 +27,34 @@ const EditorExtensions = ({ editor }) => {
     const { user } = useUser();
 
     const onAiClick = async () => {
-        toast("AI is generating answer...");
-        const selectedText = editor.state.doc.textBetween(
+
+        let selectedText = editor.state.doc.textBetween(
             editor.state.selection.from,
             editor.state.selection.to,
             " "
         );
 
+        if (!selectedText) {
+            toast("Please select a text to generate AI answer.");
+            return;
+        }
+        selectedText = selectedText.toLowerCase();
         const result = await SearchAI({
             query: selectedText,
             fileId: fileId
         });
 
         const allUnformattedAns = JSON.parse(result);
+        console.log(allUnformattedAns)
         let allUnformattedAnswer = "";
         allUnformattedAns && allUnformattedAns.forEach(item => {
             allUnformattedAnswer += item.pageContent;
         });
 
-        const PROMPT = `For question: ${selectedText}, give an appropriate answer in HTML format. The answer content is: ${allUnformattedAnswer} . (if question is empty then reply "You have to select the question part from your note with cursor and then press generate.)`;
+        const PROMPT = `Answer the following question based on the provided content. Question: "${selectedText}". Content: ${allUnformattedAnswer}. Format the response in HTML.`;
         console.log(PROMPT)
         const AiModelResult = await chatSession.sendMessage(PROMPT);
-        const responseText = await AiModelResult.response.text().replace(/```|html/g, "");
+        const responseText = await AiModelResult.response.text();
 
         const allText = editor.getHTML();
         editor.commands.setContent(allText + "<p><strong>Answer: </strong></p>" + responseText);

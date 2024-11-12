@@ -2,6 +2,23 @@ import { NextResponse } from "next/server";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
+function preprocessText(text) {
+  let processedText = text.toLowerCase();
+  processedText = processedText.replace(/[\u200B-\u200D\uFEFF]/g, ''); // Remove zero-width characters
+  processedText = processedText.replace(/[^a-z0-9\s,.?!-]/gi, ''); // Keep alphanumeric and common punctuation
+  processedText = processedText.replace(/\s{2,}/g, ' ').trim(); // Collapse multiple spaces into one
+  processedText = processedText.replace(/([,.?!])\1+/g, '$1'); // Reduce repeated punctuation
+  processedText = processedText.replace(/\d+/g, '<num>'); // Replace numbers with placeholder
+
+  const stopwords = ["and", "the", "is", "in", "at", "of", "a", "to", "for", "with", "on"];
+  processedText = processedText.split(" ")
+    .filter(word => !stopwords.includes(word))
+    .join(" ");
+
+  return processedText;
+}
+
+
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
@@ -21,17 +38,16 @@ export async function GET(req) {
 
     let pdfTextContent = "";
     docs.forEach((doc) => {
-      pdfTextContent += doc.pageContent;
+      pdfTextContent += preprocessText(doc.pageContent);
     });
 
-    // Splitting
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 200,
-      chunkOverlap: 20,
+      chunkSize: 300,
+      chunkOverlap: 50,
     });
+
     const output = await splitter.createDocuments([pdfTextContent]);
 
-    // Collect split text content
     const splitterList = output.map((res) => res.pageContent);
 
     return NextResponse.json({ result: splitterList });

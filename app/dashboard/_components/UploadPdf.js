@@ -35,36 +35,48 @@ const UploadPdfDialog = ({ children, isMaxFile }) => {
   };
 
   const onUpload = async () => {
+    if (!file) {
+      toast.error("Please select a PDF file to upload.");
+      return;
+    }
+    if (!fileName) {
+      toast.error("Please enter a file name.");
+      return;
+    }
+
     setLoading(true);
-    const postUrl = await generateUploadUrl();
+    try {
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const { storageId } = await result.json();
+      const fileId = uuid4();
 
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
-    const { storageId } = await result.json();
-    const fileId = uuid4();
+      const fileUrl = await getFileUrl({ storageId: storageId });
+      await addFileEntry({
+        fileId: fileId,
+        storageId: storageId,
+        fileName: fileName,
+        fileUrl: fileUrl,
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+      });
+      const apiResp = await axios.get("/api/pdf-loader?pdfUrl=" + fileUrl);
 
-    const fileUrl = await getFileUrl({ storageId: storageId });
-    // Adding to db
-    const response = await addFileEntry({
-      fileId: fileId,
-      storageId: storageId,
-      fileName: fileName || "Untitled file",
-      fileUrl: fileUrl,
-      createdBy: user?.primaryEmailAddress?.emailAddress,
-    });
-    // Fetching processed data
-    const apiResp = await axios.get("api/pdf-loader?pdfUrl=" + fileUrl);
+      await embeddedDocument({
+        splitText: apiResp.data.result,
+        fileId: fileId,
+      });
 
-    await embeddedDocument({
-      splitText: apiResp.data.result,
-      fileId: fileId,
-    });
-    setLoading(false);
-    setOpen(false);
-    toast("File is Ready for taking notes.")
+      setLoading(false);
+      setOpen(false);
+      toast.success("File is ready for taking notes.");
+    } catch (error) {
+      setLoading(false);
+      toast.error("Failed to upload the file. Please try again.");
+    }
   };
 
   return (
@@ -84,11 +96,11 @@ const UploadPdfDialog = ({ children, isMaxFile }) => {
                 <input
                   type="file"
                   accept="application/pdf"
-                  onChange={(event) => onFileSelect(event)}
+                  onChange={onFileSelect}
                 />
               </div>
               <div className="mt-4">
-                <label>File Name </label>
+                <label>File Name</label>
                 <Input
                   placeholder="file name"
                   onChange={(e) => setFileName(e.target.value)}

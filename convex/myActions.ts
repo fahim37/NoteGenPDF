@@ -40,8 +40,12 @@ export const search = action({
       }),
        { ctx });
 
-    const resultOne = (await vectorStore.similaritySearch(args.query, 1)).filter(q=>q.metadata.fileId==args.fileId);
-    console.log(resultOne);
-    return JSON.stringify(resultOne);
+       const results = await vectorStore.similaritySearch(args.query, 3);
+       const filteredResults = results
+         .filter(doc => doc.metadata.fileId === args.fileId || doc.score > 0.85)
+         .sort((a, b) => b.score - a.score); 
+       console.log(filteredResults);
+       return JSON.stringify(filteredResults);
+       
   },
 });
