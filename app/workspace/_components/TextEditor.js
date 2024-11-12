@@ -21,7 +21,7 @@ const TextEditor = ({ fileId, triggerSave, setTriggerSave }) => {
         extensions: [StarterKit,
             Highlight,
             Placeholder.configure({
-                placeholder: "Write the Question and press Generate to get Answer or take your own notes..."
+                placeholder: "Write the Question and select with cursor then press Generate to get Answer or take your own notes..."
             }),
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
