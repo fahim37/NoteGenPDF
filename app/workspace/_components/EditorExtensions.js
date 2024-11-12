@@ -45,8 +45,8 @@ const EditorExtensions = ({ editor }) => {
             allUnformattedAnswer += item.pageContent;
         });
 
-        const PROMPT = `For question: ${selectedText}, give an appropriate answer in HTML format. The answer content is: ${allUnformattedAnswer}`;
-
+        const PROMPT = `For question: ${selectedText}, give an appropriate answer in HTML format. The answer content is: ${allUnformattedAnswer} . (if question is empty then reply "You have to select the question part from your note with cursor and then press generate.)`;
+        console.log(PROMPT)
         const AiModelResult = await chatSession.sendMessage(PROMPT);
         const responseText = await AiModelResult.response.text().replace(/```|html/g, "");
 
