@@ -25,9 +25,10 @@ const EditorExtensions = ({ editor }) => {
     const SearchAI = useAction(api.myActions.search);
     const saveNotes = useMutation(api.notes.AddNotes);
     const { user } = useUser();
+    const [loading, setLoading] = useState(false);
 
     const onAiClick = async () => {
-
+        setLoading(true);
         let selectedText = editor.state.doc.textBetween(
             editor.state.selection.from,
             editor.state.selection.to,
@@ -64,6 +65,7 @@ const EditorExtensions = ({ editor }) => {
             createdBy: user?.primaryEmailAddress?.emailAddress
         });
         toast("Document Saved.");
+        setLoading(false);
     };
 
     return editor && (
@@ -132,10 +134,11 @@ const EditorExtensions = ({ editor }) => {
                     </button>
                     <button
                         onClick={() => onAiClick()}
+                        disabled={loading}
                         className="p-2 rounded-md flex items-center gap-1 border hover:text-blue-600"
                     >
                         <Sparkles className="w-5 h-5" />
-                        <span className="hidden sm:inline">GENERATE</span>
+                        <span className="hidden sm:inline">{loading ? "GENERATING..." : "GENERATE"}</span>
                     </button>
                 </div>
             </div>
