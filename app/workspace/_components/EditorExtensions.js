@@ -37,8 +37,10 @@ const EditorExtensions = ({ editor }) => {
 
         if (!selectedText) {
             toast("Please select a text to generate AI answer.");
+            setLoading(false);
             return;
         }
+
         selectedText = selectedText.toLowerCase();
         const result = await SearchAI({
             query: selectedText,
@@ -46,27 +48,44 @@ const EditorExtensions = ({ editor }) => {
         });
 
         const allUnformattedAns = JSON.parse(result);
-        console.log(allUnformattedAns)
+        console.log(allUnformattedAns);
         let allUnformattedAnswer = "";
-        allUnformattedAns && allUnformattedAns.forEach(item => {
-            allUnformattedAnswer += item.pageContent;
-        });
+        allUnformattedAns &&
+            allUnformattedAns.forEach(item => {
+                allUnformattedAnswer += item.pageContent;
+            });
 
         const PROMPT = `Answer the following question based on the provided content. Question: "${selectedText}". Content: ${allUnformattedAnswer}. Format the response in HTML.`;
-        console.log(PROMPT)
-        const AiModelResult = await chatSession.sendMessage(PROMPT);
-        const responseText = await AiModelResult.response.text();
+        console.log(PROMPT);
 
-        const allText = editor.getHTML();
-        editor.commands.setContent(allText + "<p><strong>Answer: </strong></p>" + responseText);
-        saveNotes({
-            notes: editor.getHTML(),
-            fileId: fileId,
-            createdBy: user?.primaryEmailAddress?.emailAddress
-        });
-        toast("Document Saved.");
-        setLoading(false);
+        try {
+            const AiModelResult = await chatSession.sendMessage(PROMPT);
+            let responseText = await AiModelResult.response.text();
+
+            responseText = responseText.replace(/```html|```/g, "").trim();
+            const allText = editor.getHTML();
+            editor.commands.setContent(allText + "<p><strong>Answer: </strong></p>" + responseText);
+
+            await saveNotes({
+                notes: editor.getHTML(),
+                fileId: fileId,
+                createdBy: user?.primaryEmailAddress?.emailAddress
+            });
+
+            toast("Document Saved.");
+        } catch (error) {
+            console.log('Error fetching AI model response:', error);
+
+            if (error.message.includes('503')) {
+                toast.error("The model is overloaded. Please try again later.");
+            } else {
+                toast.error("An unexpected error occurred. Please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     return editor && (
         <div className="p-2">
