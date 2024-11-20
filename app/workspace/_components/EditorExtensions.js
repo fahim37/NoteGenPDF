@@ -17,7 +17,7 @@ import {
     Strikethrough
 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 
 const EditorExtensions = ({ editor }) => {
