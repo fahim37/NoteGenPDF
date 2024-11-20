@@ -41,8 +41,8 @@ const SideBar = () => {
 
       </div>
       {!GetUserInfo?.upgrade && <div className="absolute bottom-24 w-[80%]">
-        <Progress value={(fileList?.length / 20) * 100} />
-        <p className="text-sm mt-3">{fileList?.length} out of 20 Pdf Uploaded</p>
+        <Progress value={(fileList?.length / 10) * 100} />
+        <p className="text-sm mt-3">{fileList?.length} out of 10 Pdf Uploaded</p>
         <p className="text-sm mt-1 text-gray-500">Upgrade to upload more</p>
       </div>}
     </div>
